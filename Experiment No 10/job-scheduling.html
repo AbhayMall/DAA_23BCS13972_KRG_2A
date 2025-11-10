@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Scheduling Problem - Greedy Algorithm</title>
+    <style>
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+            margin-bottom: 20px;
+        }
+
+        .description {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 0.95em;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+       
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        
+        .section {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 25px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .section h2 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .input-group {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #555;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input {
+            padding: 10px 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+    
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-add {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-add:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-schedule {
+            background: #48bb78;
+            color: white;
+            grid-column: 1 / -1;
+            font-size: 1.1em;
+            padding: 15px;
+        }
+
+        .btn-schedule:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.3);
+        }
+
+        .btn-schedule:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-reset {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: #e53e3e;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 101, 101, 0.3);
+        }
+
+      
+        .jobs-list {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .job-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: white;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border-left: 4px solid #667eea;
+            transition: all 0.2s;
+        }
+
+        .job-item:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .job-info {
+            display: flex;
+            gap: 15px;
+            flex: 1;
+            font-size: 0.95em;
+        }
+
+        .job-id {
+            font-weight: 700;
+            color: #667eea;
+            min-width: 40px;
+        }
+
+        .job-detail {
+            color: #666;
+        }
+
+        .btn-delete {
+            background: #fc8181;
+            color: white;
+            padding: 5px 10px;
+            font-size: 0.85em;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-delete:hover {
+            background: #f56565;
+        }
+
+        /* ============ RESULTS SECTION ============ */
+        .results-section {
+            grid-column: 1 / -1;
+            margin-top: 20px;
+        }
+
+        .results-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .results-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .result-box {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .result-box h3 {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        /* ============ RESULTS TABLE ============ */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95em;
+        }
+
+        thead {
+            background: #e6e9f5;
+        }
+
+        th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+        }
+
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tbody tr:hover {
+            background: #f5f7fa;
+        }
+
+        .scheduled {
+            background: #c6f6d5;
+            font-weight: 600;
+            color: #22543d;
+        }
+
+        .unscheduled {
+            background: #fed7d7;
+            font-weight: 600;
+            color: #742a2a;
+        }
+
+        /* ============ SUMMARY STATS ============ */
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            text-align: center;
+        }
+
+        .stat label {
+            display: block;
+            color: #666;
+            margin-bottom: 8px;
+            text-transform: capitalize;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        /* ============ STEP-BY-STEP VISUALIZATION ============ */
+        .steps {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .step-item {
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        .step-item.scheduled {
+            border-left-color: #48bb78;
+            background: #f0fdf4;
+        }
+
+        .step-item.rejected {
+            border-left-color: #f56565;
+            background: #fef2f2;
+        }
+
+        /* ============ EXAMPLE SECTION ============ */
+        .example-section {
+            background: #edf2f7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+
+        .example-section h4 {
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .example-section code {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            display: block;
+            margin: 5px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* ============ EMPTY STATE ============ */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-state p {
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <div class="header">
+            <h1>🎯 Job Scheduling Problem</h1>
+            <p>Greedy Algorithm Visualizer</p>
+            <div class="description">
+                A job scheduling problem where each job has a deadline and profit. The goal is to schedule jobs 
+                to maximize profit while meeting all deadlines using the Greedy approach.
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="content">
+            <!-- INPUT SECTION -->
+            <div class="section">
+                <h2>📋 Input Jobs</h2>
+                
+                <div class="input-group">
+                    <div>
+                        <label for="jobId">Job ID</label>
+                        <input type="text" id="jobId" placeholder="e.g., J1">
+                    </div>
+                    <div>
+                        <label for="deadline">Deadline</label>
+                        <input type="number" id="deadline" placeholder="e.g., 2" min="1">
+                    </div>
+                    <div>
+                        <label for="profit">Profit</label>
+                        <input type="number" id="profit" placeholder="e.g., 100" min="1">
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-add" onclick="addJob()">Add Job</button>
+                    <button class="btn-reset" onclick="resetAll()">Clear All</button>
+                </div>
+
+                <button class="btn-schedule" id="scheduleBtn" onclick="scheduleJobs()" disabled>
+                    Schedule Jobs
+                </button>
+
+                <!-- Jobs List -->
+                <div class="jobs-list" id="jobsList">
+                    <p style="text-align: center; color: #999; padding: 20px;">No jobs added yet</p>
+                </div>
+
+                <!-- Example -->
+                <div class="example-section">
+                    <h4>Example Jobs:</h4>
+                    <code>J1: Deadline=2, Profit=100</code>
+                    <code>J2: Deadline=1, Profit=19</code>
+                    <code>J3: Deadline=2, Profit=27</code>
+                    <code>J4: Deadline=1, Profit=25</code>
+                    <code>J5: Deadline=3, Profit=15</code>
+                </div>
+            </div>
+
+            <!-- RESULTS SECTION (Right Column) -->
+            <div class="section">
+                <h2>📊 Algorithm Steps</h2>
+                <div class="steps" id="steps">
+                    <p style="text-align: center; color: #999;">Steps will appear here after scheduling</p>
+                </div>
+            </div>
+
+            <!-- FULL WIDTH RESULTS -->
+            <div class="results-section" id="resultsSection" style="display: none;">
+                <div class="results-container">
+                    <!-- All Jobs Table -->
+                    <div class="result-box">
+                        <h3>All Jobs (Sorted by Profit)</h3>
+                        <table id="allJobsTable">
+                            <thead>
+                                <tr>
+                                    <th>Job ID</th>
+                                    <th>Deadline</th>
+                                    <th>Profit</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allJobsBody"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- Selected Jobs Table -->
+                    <div class="result-box">
+                        <h3>Selected Jobs (Scheduled)</h3>
+                        <table id="selectedJobsTable">
+                            <thead>
+                                <tr>
+                                    <th>Job ID</th>
+                                    <th>Deadline</th>
+                                    <th>Profit</th>
+                                    <th>Slot</th>
+                                </tr>
+                            </thead>
+                            <tbody id="selectedJobsBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Statistics -->
+                <div class="stats">
+                    <div class="stat">
+                        <label>Total Profit</label>
+                        <div class="stat-value" id="totalProfit">0</div>
+                    </div>
+                    <div class="stat">
+                        <label>Jobs Selected</label>
+                        <div class="stat-value" id="jobsSelected">0</div>
+                    </div>
+                    <div class="stat">
+                        <label>Total Jobs</label>
+                        <div class="stat-value" id="totalJobs">0</div>
+                    </div>
+                    <div class="stat">
+                        <label>Max Slots</label>
+                        <div class="stat-value" id="maxSlots">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // ============ DATA STORAGE ============
+        let jobs = [];
+        let scheduledJobs = [];
+
+        // ============ ADD JOB FUNCTION ============
+        /**
+         * Adds a new job to the jobs list.
+         * Validates input and updates the UI.
+         */
+        function addJob() {
+            const jobId = document.getElementById('jobId').value.trim();
+            const deadline = parseInt(document.getElementById('deadline').value);
+            const profit = parseInt(document.getElementById('profit').value);
+
+            // Input validation
+            if (!jobId) {
+                alert('Please enter a Job ID');
+                return;
+            }
+            if (isNaN(deadline) || deadline < 1) {
+                alert('Please enter a valid deadline (≥ 1)');
+                return;
+            }
+            if (isNaN(profit) || profit < 1) {
+                alert('Please enter a valid profit (≥ 1)');
+                return;
+            }
+
+            // Check for duplicate Job ID
+            if (jobs.some(j => j.id === jobId)) {
+                alert('Job ID already exists');
+                return;
+            }
+
+            // Add job to array
+            jobs.push({ id: jobId, deadline, profit });
+
+            // Clear inputs
+            document.getElementById('jobId').value = '';
+            document.getElementById('deadline').value = '';
+            document.getElementById('profit').value = '';
+            document.getElementById('jobId').focus();
+
+            // Update UI
+            updateJobsList();
+            document.getElementById('scheduleBtn').disabled = jobs.length === 0;
+            hideResults();
+        }
+
+        // ============ DELETE JOB FUNCTION ============
+        /**
+         * Removes a job from the jobs list.
+         */
+        function deleteJob(index) {
+            jobs.splice(index, 1);
+            updateJobsList();
+            document.getElementById('scheduleBtn').disabled = jobs.length === 0;
+            hideResults();
+        }
+
+        // ============ UPDATE JOBS LIST UI ============
+        /**
+         * Renders the list of jobs in the UI.
+         */
+        function updateJobsList() {
+            const jobsList = document.getElementById('jobsList');
+            
+            if (jobs.length === 0) {
+                jobsList.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">No jobs added yet</p>';
+                return;
+            }
+
+            jobsList.innerHTML = jobs.map((job, index) => `
+                <div class="job-item">
+                    <div class="job-info">
+                        <div class="job-id">${job.id}</div>
+                        <div class="job-detail">Deadline: <strong>${job.deadline}</strong></div>
+                        <div class="job-detail">Profit: <strong>$${job.profit}</strong></div>
+                    </div>
+                    <button class="btn-delete" onclick="deleteJob(${index})">Delete</button>
+                </div>
+            `).join('');
+        }
+
+        // ============ GREEDY SCHEDULING ALGORITHM ============
+        /**
+         * Core algorithm: Schedule jobs using Greedy approach.
+         * 1. Sort jobs by profit (descending)
+         * 2. For each job, find the latest available slot before deadline
+         * 3. Assign job to that slot if available
+         */
+        function scheduleJobs() {
+            if (jobs.length === 0) {
+                alert('Please add jobs first');
+                return;
+            }
+
+            // Step 1: Sort jobs by profit in descending order
+            const sortedJobs = [...jobs].sort((a, b) => b.profit - a.profit);
+            
+            // Find maximum deadline
+            const maxDeadline = Math.max(...sortedJobs.map(j => j.deadline));
+            
+            // Create slots for scheduling
+            const slots = new Array(maxDeadline).fill(null);
+            
+            scheduledJobs = [];
+            const steps = [];
+
+            // Step 2: Try to schedule each job
+            sortedJobs.forEach(job => {
+                // Find the latest available slot before the deadline
+                let slotFound = false;
+                for (let i = job.deadline - 1; i >= 0; i--) {
+                    if (slots[i] === null) {
+                        slots[i] = job;
+                        scheduledJobs.push({ ...job, slot: i + 1 });
+                        steps.push(`✅ Job <strong>${job.id}</strong> (Profit: $${job.profit}) scheduled in Slot ${i + 1}`);
+                        slotFound = true;
+                        break;
+                    }
+                }
+                
+                if (!slotFound) {
+                    steps.push(`❌ Job <strong>${job.id}</strong> (Profit: $${job.profit}) rejected - no available slot before deadline ${job.deadline}`);
+                }
+            });
+
+            // Display results
+            displayResults(sortedJobs, steps, maxDeadline);
+        }
+
+        // ============ DISPLAY RESULTS ============
+        /**
+         * Renders all results tables, statistics, and step-by-step visualization.
+         */
+        function displayResults(sortedJobs, steps, maxDeadline) {
+            // Show results section
+            document.getElementById('resultsSection').style.display = 'block';
+
+            // Display steps
+            const stepsContainer = document.getElementById('steps');
+            stepsContainer.innerHTML = steps.map(step => {
+                const isScheduled = step.includes('✅');
+                return `<div class="step-item ${isScheduled ? 'scheduled' : 'rejected'}">${step}</div>`;
+            }).join('');
+
+            // Populate all jobs table (sorted by profit)
+            const allJobsBody = document.getElementById('allJobsBody');
+            allJobsBody.innerHTML = sortedJobs.map(job => {
+                const isScheduled = scheduledJobs.some(sj => sj.id === job.id);
+                return `
+                    <tr>
+                        <td><strong>${job.id}</strong></td>
+                        <td>${job.deadline}</td>
+                        <td>$${job.profit}</td>
+                        <td><span class="${isScheduled ? 'scheduled' : 'unscheduled'}">
+                            ${isScheduled ? 'SCHEDULED' : 'REJECTED'}
+                        </span></td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Populate selected jobs table
+            const selectedJobsBody = document.getElementById('selectedJobsBody');
+            const sortedBySlot = [...scheduledJobs].sort((a, b) => a.slot - b.slot);
+            
+            if (sortedBySlot.length === 0) {
+                selectedJobsBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #999;">No jobs scheduled</td></tr>';
+            } else {
+                selectedJobsBody.innerHTML = sortedBySlot.map(job => `
+                    <tr class="scheduled">
+                        <td><strong>${job.id}</strong></td>
+                        <td>${job.deadline}</td>
+                        <td>$${job.profit}</td>
+                        <td>#${job.slot}</td>
+                    </tr>
+                `).join('');
+            }
+
+            // Update statistics
+            const totalProfit = scheduledJobs.reduce((sum, job) => sum + job.profit, 0);
+            document.getElementById('totalProfit').textContent = `$${totalProfit}`;
+            document.getElementById('jobsSelected').textContent = scheduledJobs.length;
+            document.getElementById('totalJobs').textContent = jobs.length;
+            document.getElementById('maxSlots').textContent = maxDeadline;
+        }
+
+        // ============ HELPER FUNCTIONS ============
+        /**
+         * Resets all data and UI.
+         */
+        function resetAll() {
+            jobs = [];
+            scheduledJobs = [];
+            document.getElementById('jobId').value = '';
+            document.getElementById('deadline').value = '';
+            document.getElementById('profit').value = '';
+            updateJobsList();
+            hideResults();
+            document.getElementById('scheduleBtn').disabled = true;
+        }
+
+        /**
+         * Hides the results section.
+         */
+        function hideResults() {
+            document.getElementById('resultsSection').style.display = 'none';
+        }
+
+        // Focus on first input on page load
+        window.addEventListener('load', () => {
+            document.getElementById('jobId').focus();
+        });
+
+        // Allow Enter key to add job
+        document.getElementById('profit').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addJob();
+            }
+        });
+    </script>
+</body>
+</html>
